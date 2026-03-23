@@ -1,5 +1,5 @@
 ﻿// API base URL
-const API_BASE = 'http://localhost:3000';
+const API_BASE = '';
 const BALANCE_ADMIN_EMAIL = 'egemeric92@gmail.com';
 const RESERVED_ADMIN_NAME = 'Donk';
 let availableCases = [];

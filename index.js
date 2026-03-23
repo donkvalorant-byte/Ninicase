@@ -432,6 +432,10 @@ app.get('/me', authMiddleware, (req, res) => {
   res.json(getUserById(req.user.id));
 });
 
+app.get('/health', (req, res) => {
+  res.json({ ok: true });
+});
+
 app.get('/admin/users', authMiddleware, adminMiddleware, balanceManagerMiddleware, (req, res) => {
   res.json(getAllUsers());
 });

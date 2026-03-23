@@ -1,6 +1,20 @@
+const fs = require('fs');
 const Database = require('better-sqlite3');
 const path = require('path');
-const db = new Database(path.join(__dirname, 'app.db'));
+
+function resolveDbPath() {
+  const explicitPath = String(process.env.DB_PATH || '').trim();
+  if (explicitPath) return path.resolve(explicitPath);
+
+  const railwayMount = String(process.env.RAILWAY_VOLUME_MOUNT_PATH || '').trim();
+  if (railwayMount) return path.join(railwayMount, 'app.db');
+
+  return path.join(__dirname, 'app.db');
+}
+
+const dbPath = resolveDbPath();
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+const db = new Database(dbPath);
 
 // Schema
 const migrations = [
