@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Crypto Case</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard</h1>
+            <div id="userInfo">
+                <span id="userEmail"></span>
+                <span id="userBalance"></span>
+                <button id="logoutBtn" class="btn">Çıkış</button>
+            </div>
+        </header>
+
+        <nav>
+            <a href="cases.html" class="btn">Kasaları Gör</a>
+            <a href="#" id="adminLink" class="btn" style="display:none;">Admin Paneli</a>
+        </nav>
+
+        <section id="history">
+            <h2>Son Açılan Kasalar</h2>
+            <div id="historyList"></div>
+        </section>
+
+        <div id="message"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

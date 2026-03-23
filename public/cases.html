@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasalar - Crypto Case</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="battle-shell">
+        <aside class="battle-sidebar">
+            <div class="battle-sidebar-brand">
+                <span class="battle-brand-mark">C</span>
+                <div>
+                    <strong>Crypto Case</strong>
+                    <small>Battle Studio</small>
+                </div>
+            </div>
+
+            <nav class="battle-sidebar-nav">
+                <button class="sidebar-tab active" type="button" data-view="battleBuilder">
+                    <span class="sidebar-icon">âš”</span>
+                    <span>Kasa Savasi</span>
+                </button>
+                <button class="sidebar-tab" type="button" data-view="caseLibrary">
+                    <span class="sidebar-icon">â–£</span>
+                    <span>Kasalar</span>
+                </button>
+                <a href="dashboard.html" class="sidebar-tab sidebar-link">
+                    <span class="sidebar-icon">âŒ‚</span>
+                    <span>Dashboard</span>
+                </a>
+                <button class="sidebar-tab admin-only-nav" id="adminPlayersTab" type="button" data-view="adminPlayers" style="display:none;">
+                    <span class="sidebar-icon">+</span>
+                    <span>Admin</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main class="battle-main">
+            <header class="battle-topbar">
+                <div></div>
+                <div id="userInfo" class="battle-topbar-user">
+                    <span id="userEmail"></span>
+                    <span id="userBalance"></span>
+                </div>
+            </header>
+
+            <section id="battleBuilder" class="content-view active">
+                <section class="battle-panel builder-layout">
+                    <div class="builder-config">
+                        <div class="builder-card">
+                            <h2>Kasalar</h2>
+                            <label for="battlePlayers">Mod</label>
+                            <select id="battlePlayers">
+                                <option value="4">2v2</option>
+                            </select>
+                        </div>
+
+                        <div class="builder-card">
+                            <h2>Kasalar</h2>
+                            <div id="selectedCasesList" class="selected-cases-list"></div>
+                            <div class="selected-stats">
+                                <div class="battle-stat">
+                                    <span>Round</span>
+                                    <strong id="selectedRoundsCount">0</strong>
+                                </div>
+                                <div class="battle-stat">
+                                    <span>Maliyet</span>
+                                    <strong id="selectedTotalCost">$0</strong>
+                                </div>
+                            </div>
+                            <button id="startBattleBtn" class="btn builder-start-btn">Savasi Baslat</button>
+                        </div>
+                    </div>
+
+                    <div class="builder-library">
+                        <div class="builder-library-head">
+                            <div>
+                                <h2>Kasalar</h2>
+                            </div>
+                        </div>
+                        <div id="casesList" class="case-catalog"></div>
+                    </div>
+                </section>
+
+                <section class="battle-panel" id="battleLobbyHub">
+                    <div class="builder-library-head">
+                        <div>
+                            <p class="eyebrow">Acik Savaslar</p>
+                            <h2>Katil veya Bot Ekle</h2>
+                        </div>
+                    </div>
+                    <div id="battleLobbyList" class="battle-lobby-list"></div>
+                </section>
+
+                <div id="battleSummary" class="battle-summary"></div>
+                <div id="battleArena" class="battle-arena" style="display:none;"></div>
+            </section>
+
+            <section id="caseLibrary" class="content-view">
+                <section class="battle-panel cases-hub-layout">
+                    <div class="cases-hub-main">
+                        <div class="builder-library-head">
+                            <div>
+                                <p class="eyebrow">Itemler</p>
+                                <h2>Item katalogu</h2>
+                            </div>
+                        </div>
+                        <div id="communityItemList" class="case-catalog"></div>
+                    </div>
+
+                    <aside class="cases-hub-sidebar">
+                        <div class="builder-card case-create-card">
+                            <p class="eyebrow">Yeni Kasa</p>
+                            <h2>Kendi kasani olustur</h2>
+                            <p class="battle-copy">Itemleri ve oranlarini sen sec. Sistem beklenen degere gore kasa fiyatini otomatik hesaplar.</p>
+
+                            <form id="communityCaseForm" class="case-create-form">
+                                <label for="communityCaseName">Kasa adi</label>
+                                <input type="text" id="communityCaseName" maxlength="40" placeholder="Ornek: Lucky Night">
+
+                            <div class="case-create-price">
+                                <span>Kasa Fiyati</span>
+                                <strong id="communityCasePrice">$0</strong>
+                            </div>
+                                <button type="submit" class="btn builder-start-btn">Kasayi Olustur</button>
+                            </form>
+                        </div>
+                    </aside>
+                </section>
+            </section>
+
+            <section id="adminPlayers" class="content-view">
+                <section class="battle-panel admin-balance-layout">
+                    <div class="builder-library-head">
+                        <div>
+                            <p class="eyebrow">Admin</p>
+                            <h2>Oyunculara bakiye yukle</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-balance-shell">
+                        <form id="adminBalanceForm" class="admin-balance-form">
+                            <label for="adminUserSelect">Oyuncu</label>
+                            <select id="adminUserSelect" required></select>
+
+                            <label for="adminBalanceAmount">Yuklenecek miktar</label>
+                            <input type="number" id="adminBalanceAmount" min="0.01" step="0.01" placeholder="Ornek: 500" required>
+
+                            <button type="submit" class="btn builder-start-btn">Bakiye Yukle</button>
+                        </form>
+
+                        <div class="admin-balance-list-wrap">
+                            <div id="adminUsersList" class="admin-users-list"></div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <div id="caseAnimation" class="case-animation-area" style="display: none;">
+                <h2 id="openingCaseTitle">Kasa Aciliyor...</h2>
+                <p id="openingCasePrice" style="margin: 0 0 10px; color: #ccc; font-size: .95rem;"></p>
+                <div class="slot-machine"></div>
+                <div id="resultDisplay" class="result-display" style="display: none;"></div>
+            </div>
+
+            <div id="casePreviewModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="previewCaseName"></h2>
+                    <div id="previewItems"></div>
+                </div>
+            </div>
+
+            <div id="message"></div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+

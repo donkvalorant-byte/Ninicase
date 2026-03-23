@@ -1,0 +1,830 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Room - Crypto Case</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --navy: #0c2236;
+            --midnight: #10314d;
+            --accent: #86dcff;
+            --border-strong: rgba(255, 255, 255, 0.18);
+            --border-soft: rgba(255, 255, 255, 0.08);
+            --muted: rgba(255, 255, 255, 0.65);
+        }
+
+        .battle-room-shell {
+            max-width: 1420px;
+            gap: 18px;
+        }
+
+        .battle-room-main {
+            max-width: 1360px;
+            gap: 22px;
+            padding-bottom: 52px;
+        }
+
+        .combat-focus-panel {
+            gap: 20px;
+        }
+
+        .case-opening-wrapper {
+            width: 100%;
+            margin-top: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .case-opening-card {
+            width: 100%;
+            max-width: 1360px;
+            padding: 26px;
+            border-radius: 34px;
+            background:
+                radial-gradient(circle at top, rgba(134, 220, 255, 0.14), transparent 30%),
+                linear-gradient(180deg, rgba(14, 45, 71, 0.96), rgba(8, 27, 43, 0.98));
+            border: 1px solid rgba(127, 210, 255, 0.14);
+            box-shadow: 0 28px 70px rgba(2, 16, 29, 0.48);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .players-drops-shell {
+            width: 100%;
+            padding: 0;
+        }
+
+        .case-opening-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 0 2px;
+        }
+
+        .case-opening-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.42em;
+            color: rgba(134, 220, 255, 0.92);
+            margin: 0;
+        }
+
+        .case-opening-title {
+            margin: 0;
+            font-size: clamp(1.3rem, 2vw, 1.8rem);
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
+        .case-opening-subtitle {
+            margin: 0;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .player-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0;
+            align-items: stretch;
+            padding: 8px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-slots-grid::before,
+        .player-slots-grid::after {
+            content: '';
+            position: absolute;
+            top: 120px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            pointer-events: none;
+            filter: drop-shadow(0 0 6px rgba(255, 214, 92, 0.12));
+            z-index: 2;
+        }
+
+        .player-slots-grid::before {
+            left: -1px;
+            border-right: 0;
+            border-left: 16px solid rgba(255, 255, 255, 0.24);
+        }
+
+        .player-slots-grid::after {
+            right: -1px;
+            border-left: 0;
+            border-right: 16px solid rgba(255, 255, 255, 0.24);
+        }
+
+        .players-drops-shell {
+            position: relative;
+            overflow: hidden;
+            border-radius: 18px;
+        }
+
+        .players-drops-shell::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 8px;
+            height: 224px;
+            border: 0.5px solid rgba(127, 210, 255, 0.18);
+            border-radius: 18px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .players-drops-shell::after {
+            content: 'VS';
+            position: absolute;
+            left: 50%;
+            top: 120px;
+            transform: translate(-50%, -50%);
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(127, 210, 255, 0.22);
+            background: rgba(12, 38, 59, 0.92);
+            color: rgba(226, 246, 255, 0.9);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            pointer-events: none;
+            z-index: 5;
+            box-shadow: 0 8px 18px rgba(4, 18, 31, 0.24);
+        }
+
+        .player-lane {
+            position: relative;
+            padding: 0 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .player-lane:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 0;
+            width: 1px;
+            height: 224px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .player-lane.lane-focus {
+            z-index: 1;
+        }
+
+        .player-lane.team-start::after,
+        .player-lane.team-middle::after {
+            display: none;
+        }
+
+        .player-lane .player-header,
+        .player-lane .player-reel-area,
+        .player-lane .player-history {
+            transition:
+                opacity 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                filter 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                border-color 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .player-lane.player-lane-loser .player-header,
+        .player-lane.player-lane-loser .player-reel-area,
+        .player-lane.player-lane-loser .player-history {
+            opacity: 0.28;
+            filter: saturate(0.7) brightness(0.72);
+        }
+
+        .player-lane.player-lane-loser .player-header {
+            border-color: rgba(127, 210, 255, 0.08);
+        }
+
+        .player-lane.player-lane-loser .player-history-card {
+            border-color: rgba(127, 210, 255, 0.06);
+        }
+
+        .player-lane.player-lane-winner-focus .player-header,
+        .player-lane.player-lane-winner-focus .player-reel-area,
+        .player-lane.player-lane-winner-focus .player-history {
+            opacity: 1;
+        }
+
+        .player-top-module {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .player-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: transparent;
+            border: 0.5px solid rgba(127, 210, 255, 0.26);
+            box-shadow: none;
+            position: relative;
+            isolation: isolate;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .player-lane.team-start .player-header {
+            margin-right: -9px;
+            border-color: transparent;
+        }
+
+
+        .player-lane.team-end .player-header {
+            margin-left: -9px;
+            border-color: transparent;
+        }
+
+        .player-lane.team-middle .player-header {
+            margin-left: -9px;
+            margin-right: -9px;
+            border-color: transparent;
+        }
+
+        .team-header-bridge {
+            position: absolute;
+            border: 0.5px solid rgba(200, 148, 92, 0.26);
+            border-radius: 18px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .player-avatar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            width: 44px;
+        }
+
+        .player-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.14), rgba(54, 34, 21, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.08em;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            max-width: none;
+        }
+
+        .player-info strong {
+            display: block;
+            font-size: 0.96rem;
+            color: #fff;
+            line-height: 1.2;
+            word-break: break-word;
+            text-align: left;
+            width: 100%;
+        }
+
+        .player-total {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 4px;
+            text-align: left;
+            line-height: 1.15;
+            width: 100%;
+        }
+
+        .battle-user-reward {
+            width: 100%;
+            max-width: 100%;
+            margin-top: 2px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            transform: translateY(-3px);
+        }
+
+        .battle-user-reward:not(:empty)::after {
+            width: 12px;
+            height: 18px;
+            flex: 0 0 12px;
+            background-size: auto 100%;
+        }
+
+        .player-badge { 
+            display: none;
+        }
+
+        .player-badge-slot {
+            display: none;
+        }
+
+        .player-reel-area {
+            width: 100%;
+            min-height: 224px;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            gap: 0;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            position: relative;
+        }
+
+        .player-lane:first-child .player-reel-area {
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .player-lane:last-child .player-reel-area {
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .player-lane:not(:last-child) .player-reel-area::after {
+            display: none;
+        }
+
+        .player-reel-window {
+            width: 100%;
+            height: 224px;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            overflow: hidden;
+            position: relative;
+            box-shadow: none;
+        }
+
+        .player-lane.lane-animating .player-reel-window {
+            box-shadow: none;
+        }
+
+        .player-reel-track {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 100%;
+            padding: 16px 0;
+            will-change: transform;
+            transform: translateY(0);
+        }
+
+        .player-reel-card {
+            width: 94px;
+            min-width: 94px;
+            height: 126px;
+            border-radius: 0;
+            border: none;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            gap: 0;
+            text-align: center;
+            transition: transform 0.3s ease, color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .player-reel-card span {
+            display: none;
+        }
+
+        .player-reel-card-active {
+            transform: scale(1.01);
+            color: #fff;
+        }
+
+        .player-reel-card-star {
+            color: var(--muted);
+        }
+
+        .player-reel-card-premium {
+            border: none;
+            background: transparent;
+            color: var(--muted);
+        }
+
+        .player-reel-card .mini-art {
+            width: 100%;
+            height: 116px;
+            border-radius: 12px;
+            background-size: 169% auto;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .player-reel-card-doge .mini-art {
+            background-size: 100% auto;
+        }
+
+        .player-reel-card .mini-art-star {
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            box-shadow: none;
+            background-size: 120% auto;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .star-symbol {
+            font-size: 2rem;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.82);
+            text-shadow: none;
+        }
+
+        @keyframes starBubblePop {
+            0% {
+                transform: scale(1);
+            }
+            38% {
+                transform: scale(1.82);
+            }
+            68% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .player-reel-indicator {
+            display: none;
+        }
+
+        .player-reel-window::before {
+            display: none;
+        }
+
+        .player-opening-label {
+            display: none;
+        }
+
+        .player-lane.premium-star-landed .player-reel-area {
+            box-shadow: none;
+        }
+
+        .player-lane.premium-star-landed .player-reel-card-star.player-reel-card-active .mini-art-star {
+            animation: starBubblePop 1180ms cubic-bezier(0.22, 0.86, 0.24, 1) both;
+            transform-origin: center;
+        }
+
+        .player-lane.premium-subreel-active .player-reel-card-premium.player-reel-card-active .mini-art {
+            animation: starBubblePop 1180ms cubic-bezier(0.22, 0.86, 0.24, 1) both;
+            transform-origin: center;
+        }
+
+        .player-lane.premium-subreel-active .player-reel-area {
+            background: transparent;
+            border-top-color: transparent;
+            border-bottom-color: transparent;
+        }
+
+        .player-reel-window.is-premium-mode {
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .player-current-result {
+            display: none;
+        }
+
+        .player-current-result .result-label {
+            display: none;
+        }
+
+        .player-result-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .player-result-art {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background-size: cover;
+            background-position: center;
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+        }
+
+        .player-result-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .player-result-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+            word-break: break-word;
+        }
+
+        .player-result-payout {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .player-current-result.result-highlight {
+            display: none;
+        }
+
+        .player-history {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 2px;
+            padding: 0 2px 2px;
+        }
+
+        .player-history-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            min-width: 0;
+            min-height: 156px;
+            padding: 12px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(46, 30, 20, 0.94), rgba(22, 14, 9, 0.9));
+            border: 1px solid rgba(200, 148, 92, 0.12);
+            box-shadow: 0 10px 18px rgba(13, 8, 5, 0.24);
+            position: relative;
+        }
+
+        .player-history-art {
+            width: 100%;
+            height: 72px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.34);
+        }
+
+        .player-history-body {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .player-history-card::before {
+            display: none;
+        }
+
+        .player-history-body strong {
+            font-size: 0.85rem;
+            color: #fff;
+            word-break: break-word;
+            line-height: 1.2;
+            min-height: calc(1.2em * 2);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .player-history-body span {
+            font-size: 0.75rem;
+            color: rgba(234, 213, 187, 0.72);
+        }
+
+        .history-empty {
+            grid-column: 1 / -1;
+            border-radius: 16px;
+            border: 1px dashed rgba(200, 148, 92, 0.18);
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(229, 203, 173, 0.58);
+            background: rgba(200, 148, 92, 0.04);
+            box-shadow: inset 0 1px 8px rgba(255, 241, 223, 0.03);
+        }
+
+        @media (max-width: 1180px) {
+            .players-drops-shell::after {
+                display: none;
+            }
+
+            .team-header-bridge {
+                display: none;
+            }
+
+            .player-slots-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 22px 18px;
+            }
+
+            .player-lane {
+                padding: 0;
+            }
+
+            .player-lane::after {
+                display: none;
+            }
+
+            .player-lane.team-start .player-header,
+            .player-lane.team-end .player-header,
+            .player-lane.team-middle .player-header {
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: 18px;
+                border-color: rgba(200, 148, 92, 0.26);
+            }
+
+            .player-lane.team-start .player-top-module::before {
+                display: none;
+            }
+
+
+            .players-drops-shell {
+                padding: 0;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+
+            .player-reel-area {
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 22px;
+            }
+
+            .player-lane:first-child .player-reel-area,
+            .player-lane:last-child .player-reel-area {
+                border-left: 1px solid rgba(255, 255, 255, 0.08);
+                border-right: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 22px;
+            }
+
+            .player-lane:not(:last-child) .player-reel-area::after {
+                display: none;
+            }
+
+            .player-reel-area,
+            .player-current-result,
+            .player-history {
+                margin: 0 0 0;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .case-opening-card {
+                padding: 24px;
+                border-radius: 30px;
+            }
+
+            .player-slots-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .battle-room-main {
+                gap: 18px;
+                padding-bottom: 36px;
+            }
+
+            .case-opening-card {
+                padding: 18px;
+                gap: 20px;
+            }
+
+            .case-opening-header {
+                gap: 10px;
+            }
+
+            .case-opening-title {
+                font-size: 1.1rem;
+            }
+
+            .player-slots-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .player-header {
+                padding: 12px 14px;
+                border-radius: 16px;
+            }
+
+            .player-reel-window {
+                height: 122px;
+            }
+
+            .player-reel-card {
+                width: 82px;
+                min-width: 82px;
+                height: 112px;
+            }
+
+            .player-reel-card .mini-art {
+                height: 72px;
+            }
+
+            .player-history {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .player-result-card {
+                align-items: flex-start;
+            }
+
+            .player-result-art {
+                width: 56px;
+                height: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="battle-room-shell">
+        <header class="battle-room-topbar">
+            <div>
+                <a href="cases.html" class="battle-room-back">&larr; Kasalara don</a>
+                <h1>Battle Room</h1>
+            </div>
+            <div id="userInfo" class="battle-topbar-user">
+                <span id="userEmail"></span>
+                <span id="userBalance"></span>
+            </div>
+        </header>
+
+        <main class="battle-room-main" id="battleMain">
+            <section class="combat-focus-panel">
+                <div id="jackpotBar" class="jackpot-panel"></div>
+                <div class="case-opening-wrapper">
+                    <div class="case-opening-card">
+                        <div class="case-opening-header">
+                            <div>
+                                <p class="case-opening-label">KASA ACILISI</p>
+                                <h2 class="case-opening-title">Savas Alani</h2>
+                            </div>
+                            <span class="case-opening-subtitle">Her oyuncu kendi kasasini aciyor</span>
+                        </div>
+                        <section class="players-drops-shell" id="playersSlotsShell">
+                            <div class="player-slots-grid" id="playerSlotsGrid"></div>
+                        </section>
+                    </div>
+                </div>
+
+            <div id="battleMessage" class="battle-message"></div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
